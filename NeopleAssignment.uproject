@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{7394D9C0-4383-1FF9-D5AD-7581785344F8}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "NeopleAssignment",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
