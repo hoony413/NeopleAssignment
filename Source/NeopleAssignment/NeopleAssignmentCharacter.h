@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "NeopleAssignmentCharacter.generated.h"
 
+enum class EProjectileType : uint8;
+
 UCLASS(config=Game)
 class ANeopleAssignmentCharacter : public ACharacter
 {
@@ -24,6 +26,11 @@ protected:
 	/** Called for side to side input */
 	void MoveRight(float Val);
 
+	void PressedFire();
+	void ReleasedFire();
+
+	void PressedChargeToggle();
+
 	/** Handle touch inputs. */
 	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
 
@@ -34,6 +41,15 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
+protected:
+	UPROPERTY()
+		float fPressedFireTimeStamp = 0.f;
+	UPROPERTY()
+		float fReleasedFireTimeStamp = 0.f;
+	UPROPERTY()
+		float fPressedChargeTimeStamp = 0.f;
+
+	void InitializeTimeStamp();
 
 public:
 	ANeopleAssignmentCharacter();
@@ -42,4 +58,8 @@ public:
 	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	void FireProjectile(EProjectileType InType);
+
+	virtual void Tick(float DeltaSeconds) override;
 };
