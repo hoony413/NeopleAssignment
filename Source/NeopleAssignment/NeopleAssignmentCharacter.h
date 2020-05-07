@@ -31,6 +31,8 @@ protected:
 
 	void PressedChargeToggle();
 
+	void CalculateFirePosition();
+
 	/** Handle touch inputs. */
 	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
 
@@ -49,6 +51,9 @@ protected:
 	UPROPERTY()
 		float fPressedChargeTimeStamp = 0.f;
 
+	UPROPERTY()
+		FVector FirePosition;
+
 	void InitializeTimeStamp();
 
 public:
@@ -59,6 +64,7 @@ public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
+	FVector& GetFirePosition();
 	void FireProjectile(EProjectileType InType);
 
 	virtual void Tick(float DeltaSeconds) override;

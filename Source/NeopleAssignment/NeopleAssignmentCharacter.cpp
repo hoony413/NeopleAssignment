@@ -7,6 +7,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BaseProjectile.h"
+#include "NormalProjectile.h"
+#include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 
 ANeopleAssignmentCharacter::ANeopleAssignmentCharacter()
 {
@@ -97,9 +99,37 @@ void ANeopleAssignmentCharacter::PressedChargeToggle()
 }
 void ANeopleAssignmentCharacter::FireProjectile(EProjectileType InType)
 {
-	// GameMode에 발사 요청.
+	CalculateFirePosition();
+
+	FActorSpawnParameters spawnParam;
+	spawnParam.Owner = this;
+	
+	if (InType == EProjectileType::ENormalProj)
+	{
+		ANormalProjectile* proj = GetWorld()->SpawnActor<ANormalProjectile>(
+			ANormalProjectile::StaticClass(),
+			FirePosition, FRotator::ZeroRotator, spawnParam);
+		proj->SetActorScale3D(FVector(0.5f));
+		FVector forwardNormal = GetActorForwardVector();
+		proj->SetVelocity(forwardNormal);
+	}
+	
 	// 타임스탬프 값 초기화.
 	InitializeTimeStamp();
+}
+void ANeopleAssignmentCharacter::CalculateFirePosition()
+{
+	// 발사지점 중간 계산
+	FVector startPos = GetActorLocation();
+	//startPos.Z += 50.f;
+
+	// 탄체 시작위치: 캐릭터 위치 + 캐릭터 방향벡터 * 스칼라 값(20) 
+	FirePosition = startPos + (GetActorForwardVector() * 20);
+}
+FVector& ANeopleAssignmentCharacter::GetFirePosition()
+{
+	CalculateFirePosition();
+	return FirePosition;
 }
 void ANeopleAssignmentCharacter::Tick(float DeltaSeconds)
 {
