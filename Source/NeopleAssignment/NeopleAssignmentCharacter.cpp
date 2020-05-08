@@ -97,7 +97,7 @@ void ANeopleAssignmentCharacter::ReleasedFire()
 }
 void ANeopleAssignmentCharacter::PressedChargeToggle()
 {
-	fPressedChargeTimeStamp = GetWorld()->GetRealTimeSeconds();
+	fPressedSplitTimeStamp = GetWorld()->GetRealTimeSeconds();
 }
 void ANeopleAssignmentCharacter::FireProjectile(EProjectileType InType)
 {
@@ -162,9 +162,9 @@ void ANeopleAssignmentCharacter::Tick(float DeltaSeconds)
 	iMessageCounter--;
 	GEngine->AddOnScreenDebugMessage(iMessageCounter, 10, FColor::Red, FString::Printf(TEXT("Q Hold Time: %f"), fDebugHoldTime));
 
-	if (fPressedChargeTimeStamp > 0.f)
+	if (fPressedSplitTimeStamp > 0.f)
 	{	// W 버튼을 눌렀나?
-		if (fReleasedFireTimeStamp - fPressedChargeTimeStamp <= 1.f)
+		if (fReleasedFireTimeStamp - fPressedSplitTimeStamp <= 1.f)
 		{	// Q를 뗴기 1초 이내에 W를 눌렀는가? 분열 발사체 발사.
 			FireProjectile(EProjectileType::ESplitProj);
 			return;
@@ -182,7 +182,7 @@ void ANeopleAssignmentCharacter::Tick(float DeltaSeconds)
 }
 void ANeopleAssignmentCharacter::InitializeTimeStamp()
 {
-	fPressedFireTimeStamp = fReleasedFireTimeStamp = fPressedChargeTimeStamp = fDebugHoldTime = 0.f;
+	fPressedFireTimeStamp = fReleasedFireTimeStamp = fPressedSplitTimeStamp = fDebugHoldTime = 0.f;
 	iMessageCounter = -1;
 	GEngine->ClearOnScreenDebugMessages();
 }

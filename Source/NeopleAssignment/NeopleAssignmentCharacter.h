@@ -49,7 +49,7 @@ protected:
 	UPROPERTY()
 		float fReleasedFireTimeStamp = 0.f;
 	UPROPERTY()
-		float fPressedChargeTimeStamp = 0.f;
+		float fPressedSplitTimeStamp = 0.f;
 
 #if WITH_EDITOR
 	UPROPERTY()

@@ -16,8 +16,6 @@ ABaseProjectile::ABaseProjectile()
 	// 구체 콜리전 설정
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	CollisionComponent->InitSphereRadius(60.0f);
-	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
-	
 	CollisionComponent->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionComponent->SetCollisionProfileName(TEXT("Projectile"));
