@@ -21,6 +21,9 @@ public:
 	virtual void LifeSpanExpired() override;
 
 protected:
+	void AddSplitArrowComponent();
+
+protected:
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
 		UArrowComponent* LeftArrowComponent;
 	UPROPERTY(VisibleAnywhere, Category = Projectile)

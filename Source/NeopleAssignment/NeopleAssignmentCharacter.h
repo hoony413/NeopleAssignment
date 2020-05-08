@@ -72,7 +72,10 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 	FVector& GetFirePosition();
-	void FireProjectile(EProjectileType InType);
+	
+	// 발사체 생성/발사하는 템플릿 함수.
+	template<typename T>
+	void FireProjectile();
 
 	virtual void Tick(float DeltaSeconds) override;
 };

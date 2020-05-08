@@ -8,21 +8,30 @@
 
 // Sets default values
 ABaseProjectile::ABaseProjectile()
-:Velocity(100.f), ArrowCount(1), Lifetime(3.f), ArrowScale(1.f)
+:Velocity(100.f), Lifetime(3.f), ArrowScale(1.f)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	AddCollisionComponent();
+	AddMeshComponent();
+	AddProjectileMovementComponent();
+	AddArrowComponent();
+}
+
+void ABaseProjectile::AddCollisionComponent()
+{
 	// 구체 콜리전 설정
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	CollisionComponent->InitSphereRadius(60.0f);
 	CollisionComponent->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionComponent->SetCollisionProfileName(TEXT("Projectile"));
-	
 	CollisionComponent->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnHit);
 	RootComponent = CollisionComponent;
-	
+}
+void ABaseProjectile::AddMeshComponent()
+{
 	// 메쉬&머터리얼 설정
 	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMeshComp"));
 	SphereMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -32,13 +41,17 @@ ABaseProjectile::ABaseProjectile()
 	SphereMesh->SetMaterial(0, mat.Object);
 	SphereMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SphereMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
+}
+void ABaseProjectile::AddProjectileMovementComponent()
+{
 	// 탄체 무브먼트 설정
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 	ProjectileMovementComponent->Velocity = FVector::ZeroVector;
-
+}
+void ABaseProjectile::AddArrowComponent()
+{
 	// 화살표 설정
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));
 	ArrowComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -48,14 +61,18 @@ ABaseProjectile::ABaseProjectile()
 	ArrowComponent->SetRelativeLocation(FVector::ZeroVector);
 }
 
-// Called when the game starts or when spawned
-void ABaseProjectile::BeginPlay()
+void ABaseProjectile::SetVariableData()
 {
-	// 변수 설정
+	// 변수 설정(속도, 생존시간, 화살표 크기)
 	ProjectileMovementComponent->InitialSpeed = Velocity;
 	InitialLifeSpan = Lifetime;
 	ArrowComponent->ArrowSize = ArrowScale;
 	ArrowComponent->MarkRenderStateDirty();
+}
+// Called when the game starts or when spawned
+void ABaseProjectile::BeginPlay()
+{
+	SetVariableData();
 	Super::BeginPlay();
 }
 

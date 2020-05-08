@@ -7,13 +7,6 @@
 #include "Engine/Classes/Components/StaticMeshComponent.h"
 #include "BaseProjectile.generated.h"
 
-UENUM()
-enum class EProjectileType : uint8
-{
-	ENormalProj,
-	EChargeProj,
-	ESplitProj,
-};
 // ENormalProj.
 /*
 a. Q 키를 눌렀다 떼면 발사됩니다.
@@ -59,7 +52,6 @@ public:
 	ABaseProjectile();
 
 	virtual void SetVelocity(FVector& InDir);
-	virtual EProjectileType GetProjectileType() { return EProjectileType::ENormalProj; }
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -67,6 +59,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void AddCollisionComponent();
+	void AddMeshComponent();
+	void AddProjectileMovementComponent();
+	void AddArrowComponent();
+
+	virtual void SetVariableData();
 
 	UFUNCTION()
 		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
@@ -81,9 +80,6 @@ public:
 	// 탄체에 달린 ArrowComponent 스케일.
 	UPROPERTY(VisibleAnywhere, Category = ProjectileSettings)
 		float ArrowScale;
-	// 화살표 갯수
-	UPROPERTY(VisibleAnywhere, Category = ProjectileSettings)
-		int32 ArrowCount;
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = Projectile)

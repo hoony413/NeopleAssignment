@@ -6,7 +6,6 @@
 AChargedProjectile::AChargedProjectile()
 {
 	Velocity = 100.f;
-	ArrowCount = 1.f;
 	Lifetime = 5.f;
 	ArrowScale = 3.f;
 }

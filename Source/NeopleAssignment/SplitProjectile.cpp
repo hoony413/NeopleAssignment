@@ -7,10 +7,13 @@
 ASplitProjectile::ASplitProjectile()
 {
 	Velocity = 100.f;
-	ArrowCount = 3;
 	Lifetime = 3.f;
 	ArrowScale = 1.f;
 
+	AddSplitArrowComponent();
+}
+void ASplitProjectile::AddSplitArrowComponent()
+{
 	// 화살표 설정
 	LeftArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("LeftArrowComponent"));
 	LeftArrowComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -31,10 +34,10 @@ ASplitProjectile::ASplitProjectile()
 	Arrows.Add(ArrowComponent);
 	Arrows.Add(RightArrowComponent);
 }
-
 void ASplitProjectile::SetVelocity(FVector& InDir)
-{	// 직진 진행방향으로부터 -45도, 45도 방향 계산
+{	
 	Super::SetVelocity(InDir);
+	// 직진 진행방향으로부터 -45도, 45도 방향 계산
 	FRotator rot = InDir.Rotation();
 	// 왼쪽 화살표 갱신
 	rot.SetComponentForAxis(EAxis::Z, -45.f);
@@ -48,7 +51,7 @@ void ASplitProjectile::LifeSpanExpired()
 	FActorSpawnParameters spawnParam;
 	spawnParam.Owner = this->GetOwner();
 
-	// 자기 자신 소멸 후, 각 화살표 방향으로 노멀 탄체를 날린다.
+	// 각 화살표 방향으로 노멀 탄체를 날린 후 자기 자신 소멸.
 	for (int32 i = 0; i < Arrows.Num(); ++i)
 	{
 		ANormalProjectile* proj = GetWorld()->SpawnActor<ANormalProjectile>(

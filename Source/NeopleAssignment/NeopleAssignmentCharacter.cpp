@@ -99,40 +99,23 @@ void ANeopleAssignmentCharacter::PressedChargeToggle()
 {
 	fPressedSplitTimeStamp = GetWorld()->GetRealTimeSeconds();
 }
-void ANeopleAssignmentCharacter::FireProjectile(EProjectileType InType)
-{
-	CalculateFirePosition();
+template<typename T>
+void ANeopleAssignmentCharacter::FireProjectile()
+{	
+	UClass* uc = T::StaticClass();
+	if (uc->IsChildOf(ABaseProjectile::StaticClass()) == false)
+		return;
 
+	CalculateFirePosition();
+	
 	FActorSpawnParameters spawnParam;
 	spawnParam.Owner = this;
+
+	T* t = GetWorld()->SpawnActor<T>(uc, FirePosition, FRotator::ZeroRotator, spawnParam);
+	t->SetActorScale3D(FVector(0.5f));
+	FVector forwardNormal = GetActorForwardVector();
+	t->SetVelocity(forwardNormal);
 	
-	if (InType == EProjectileType::ENormalProj)
-	{
-		ANormalProjectile* proj = GetWorld()->SpawnActor<ANormalProjectile>(
-			ANormalProjectile::StaticClass(),
-			FirePosition, FRotator::ZeroRotator, spawnParam);
-		proj->SetActorScale3D(FVector(0.5f));
-		FVector forwardNormal = GetActorForwardVector();
-		proj->SetVelocity(forwardNormal);
-	}
-	else if (InType == EProjectileType::EChargeProj)
-	{
-		AChargedProjectile* proj = GetWorld()->SpawnActor<AChargedProjectile>(
-			AChargedProjectile::StaticClass(),
-			FirePosition, FRotator::ZeroRotator, spawnParam);
-		proj->SetActorScale3D(FVector(0.5f));
-		FVector forwardNormal = GetActorForwardVector();
-		proj->SetVelocity(forwardNormal);
-	}
-	else if (InType == EProjectileType::ESplitProj)
-	{
-		ASplitProjectile* proj = GetWorld()->SpawnActor<ASplitProjectile>(
-			ASplitProjectile::StaticClass(),
-			FirePosition, FRotator::ZeroRotator, spawnParam);
-		proj->SetActorScale3D(FVector(0.5f));
-		FVector forwardNormal = GetActorForwardVector();
-		proj->SetVelocity(forwardNormal);
-	}
 	// 타임스탬프 값 초기화.
 	InitializeTimeStamp();
 }
@@ -142,7 +125,7 @@ void ANeopleAssignmentCharacter::CalculateFirePosition()
 	FVector startPos = GetCharacterMovement()->GetActorFeetLocation();
 	startPos.Z += 50.f;
 
-	// 탄체 시작위치: 캐릭터 위치 + 캐릭터 방향벡터 * 스칼라 값(20) 
+	// 탄체 시작위치: 보정된 캐릭터 발 위치(50) + 캐릭터 방향벡터 * 스칼라 값(20) 
 	FirePosition = startPos + (GetActorForwardVector() * 20);
 }
 FVector& ANeopleAssignmentCharacter::GetFirePosition()
@@ -166,22 +149,22 @@ void ANeopleAssignmentCharacter::Tick(float DeltaSeconds)
 	{	// W 버튼을 눌렀나?
 		if (fReleasedFireTimeStamp - fPressedSplitTimeStamp <= 1.f)
 		{	// Q를 뗴기 1초 이내에 W를 눌렀는가? 분열 발사체 발사.
-			FireProjectile(EProjectileType::ESplitProj);
+			FireProjectile<ASplitProjectile>();
 			return;
 		}
 	}
 	
 	if (fReleasedFireTimeStamp - fPressedFireTimeStamp >= 3.f)
 	{	// Q를 3초 이상 눌렀나? 충전 발사체 발사.
-		FireProjectile(EProjectileType::EChargeProj);
+		FireProjectile<AChargedProjectile>();
 	}
 	else if(fReleasedFireTimeStamp - fPressedFireTimeStamp >= 0.f)
 	{	// 일반 발사체 발사(눌렀다 뗼 때 발사되어야 함).
-		FireProjectile(EProjectileType::ENormalProj);
+		FireProjectile<ANormalProjectile>();
 	}
 }
 void ANeopleAssignmentCharacter::InitializeTimeStamp()
-{
+{	// 기록된 시간들 초기화.
 	fPressedFireTimeStamp = fReleasedFireTimeStamp = fPressedSplitTimeStamp = fDebugHoldTime = 0.f;
 	iMessageCounter = -1;
 	GEngine->ClearOnScreenDebugMessages();
