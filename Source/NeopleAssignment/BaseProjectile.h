@@ -49,7 +49,7 @@ class UArrowComponent;
 class UStaticMeshComponent;
 class UProjectileMovementComponent;
 
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class NEOPLEASSIGNMENT_API ABaseProjectile : public AActor
 {
 	GENERATED_BODY()
@@ -58,6 +58,12 @@ public:
 	// Sets default values for this actor's properties
 	ABaseProjectile();
 
+	virtual void SetVelocity(FVector& InDir);
+	virtual EProjectileType GetProjectileType() { return EProjectileType::ENormalProj; }
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -65,20 +71,21 @@ protected:
 	UFUNCTION()
 		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-protected:
+public:
 	// 탄체 속도(s)
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = ProjectileSettings)
 		float Velocity;
-	// 탄체 각도(발사 모체가 바라보는 방향이 기준이 됨)
-	UPROPERTY()
-		float Degree;
 	// 탄체 지속시간
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = ProjectileSettings)
 		float Lifetime;
 	// 탄체에 달린 ArrowComponent 스케일.
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = ProjectileSettings)
 		float ArrowScale;
+	// 화살표 갯수
+	UPROPERTY(VisibleAnywhere, Category = ProjectileSettings)
+		int32 ArrowCount;
 
+protected:
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
 		USphereComponent* CollisionComponent;
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
@@ -88,13 +95,5 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
 		UProjectileMovementComponent* ProjectileMovementComponent;
-
-
-public:
-	void SetVelocity(FVector& InDir);
-	virtual EProjectileType GetProjectileType() { return EProjectileType::ENormalProj; }
-
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 };

@@ -8,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BaseProjectile.h"
 #include "NormalProjectile.h"
+#include "ChargedProjectile.h"
+#include "SplitProjectile.h"
 #include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 
 ANeopleAssignmentCharacter::ANeopleAssignmentCharacter()
@@ -113,15 +115,32 @@ void ANeopleAssignmentCharacter::FireProjectile(EProjectileType InType)
 		FVector forwardNormal = GetActorForwardVector();
 		proj->SetVelocity(forwardNormal);
 	}
-	
+	else if (InType == EProjectileType::EChargeProj)
+	{
+		AChargedProjectile* proj = GetWorld()->SpawnActor<AChargedProjectile>(
+			AChargedProjectile::StaticClass(),
+			FirePosition, FRotator::ZeroRotator, spawnParam);
+		proj->SetActorScale3D(FVector(0.5f));
+		FVector forwardNormal = GetActorForwardVector();
+		proj->SetVelocity(forwardNormal);
+	}
+	else if (InType == EProjectileType::ESplitProj)
+	{
+		ASplitProjectile* proj = GetWorld()->SpawnActor<ASplitProjectile>(
+			ASplitProjectile::StaticClass(),
+			FirePosition, FRotator::ZeroRotator, spawnParam);
+		proj->SetActorScale3D(FVector(0.5f));
+		FVector forwardNormal = GetActorForwardVector();
+		proj->SetVelocity(forwardNormal);
+	}
 	// 타임스탬프 값 초기화.
 	InitializeTimeStamp();
 }
 void ANeopleAssignmentCharacter::CalculateFirePosition()
 {
-	// 발사지점 중간 계산
-	FVector startPos = GetActorLocation();
-	//startPos.Z += 50.f;
+	// 발사지점 계산
+	FVector startPos = GetCharacterMovement()->GetActorFeetLocation();
+	startPos.Z += 50.f;
 
 	// 탄체 시작위치: 캐릭터 위치 + 캐릭터 방향벡터 * 스칼라 값(20) 
 	FirePosition = startPos + (GetActorForwardVector() * 20);
@@ -134,8 +153,14 @@ FVector& ANeopleAssignmentCharacter::GetFirePosition()
 void ANeopleAssignmentCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (fPressedFireTimeStamp == 0.f)
+	if (fPressedFireTimeStamp <= 0.f)
 		return;
+
+	fDebugHoldTime += DeltaSeconds;
+	GEngine->RemoveOnScreenDebugMessage(iMessageCounter);
+	
+	iMessageCounter--;
+	GEngine->AddOnScreenDebugMessage(iMessageCounter, 10, FColor::Red, FString::Printf(TEXT("Q Hold Time: %f"), fDebugHoldTime));
 
 	if (fPressedChargeTimeStamp > 0.f)
 	{	// W 버튼을 눌렀나?
@@ -157,5 +182,7 @@ void ANeopleAssignmentCharacter::Tick(float DeltaSeconds)
 }
 void ANeopleAssignmentCharacter::InitializeTimeStamp()
 {
-	fPressedFireTimeStamp = fReleasedFireTimeStamp = fPressedChargeTimeStamp = 0.f;
+	fPressedFireTimeStamp = fReleasedFireTimeStamp = fPressedChargeTimeStamp = fDebugHoldTime = 0.f;
+	iMessageCounter = -1;
+	GEngine->ClearOnScreenDebugMessages();
 }

@@ -51,6 +51,13 @@ protected:
 	UPROPERTY()
 		float fPressedChargeTimeStamp = 0.f;
 
+#if WITH_EDITOR
+	UPROPERTY()
+		float fDebugHoldTime = 0.f;
+	UPROPERTY()
+		int32 iMessageCounter = -1;
+#endif
+
 	UPROPERTY()
 		FVector FirePosition;
 

@@ -8,19 +8,19 @@
 
 // Sets default values
 ABaseProjectile::ABaseProjectile()
-:Velocity(100.f), Degree(0.f), Lifetime(3.f), ArrowScale(1.f)
+:Velocity(100.f), ArrowCount(1), Lifetime(3.f), ArrowScale(1.f)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// 구체 콜리전 설정
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	CollisionComponent->InitSphereRadius(60.0f);
 	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
 	
 	CollisionComponent->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	CollisionComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	CollisionComponent->SetCollisionProfileName(TEXT("Projectile"));
 	
 	CollisionComponent->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnHit);
 	RootComponent = CollisionComponent;
@@ -39,12 +39,10 @@ ABaseProjectile::ABaseProjectile()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
-	ProjectileMovementComponent->InitialSpeed = Velocity;
 	ProjectileMovementComponent->Velocity = FVector::ZeroVector;
 
 	// 화살표 설정
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));
-	ArrowComponent->ScreenSize = 1.f;
 	ArrowComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	ArrowComponent->bUseInEditorScaling = false;
 	ArrowComponent->SetVisibility(true);
@@ -55,21 +53,27 @@ ABaseProjectile::ABaseProjectile()
 // Called when the game starts or when spawned
 void ABaseProjectile::BeginPlay()
 {
+	// 변수 설정
+	ProjectileMovementComponent->InitialSpeed = Velocity;
+	InitialLifeSpan = Lifetime;
+	ArrowComponent->ArrowSize = ArrowScale;
+	ArrowComponent->MarkRenderStateDirty();
 	Super::BeginPlay();
-	
 }
 
 void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (HitComp)
+	if (OtherActor)
 	{
-		
+		Destroy();
 	}
 }
 void ABaseProjectile::SetVelocity(FVector& InDir)
 {
 	FRotator rot = InDir.Rotation();
+	// 탄체가 진행방향을 바라보게(ArrowComponent 정렬)
 	SetActorRelativeRotation(rot);
+	// 진행방향 벡터에 속도 스칼라 곱
 	ProjectileMovementComponent->Velocity = InDir * ProjectileMovementComponent->InitialSpeed;
 }
 
