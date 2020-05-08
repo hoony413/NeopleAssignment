@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/Classes/Components/StaticMeshComponent.h"
 #include "BaseProjectile.generated.h"
 
 UENUM()
@@ -62,7 +63,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 protected:
 	// ÅºÃ¼ ¼Óµµ(s)
@@ -78,19 +79,19 @@ protected:
 	UPROPERTY()
 		float ArrowScale;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	UPROPERTY(VisibleAnywhere, Category = Projectile)
 		USphereComponent* CollisionComponent;
-	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	UPROPERTY(VisibleAnywhere, Category = Projectile)
 		UArrowComponent* ArrowComponent;
-	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* SphereMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = Movement)
+	UPROPERTY(VisibleAnywhere, Category = Projectile)
 		UProjectileMovementComponent* ProjectileMovementComponent;
+
 
 public:
 	void SetVelocity(FVector& InDir);
-	UProjectileMovementComponent* GetProjectileMoveComponent() { return ProjectileMovementComponent; }
 	virtual EProjectileType GetProjectileType() { return EProjectileType::ENormalProj; }
 
 	// Called every frame

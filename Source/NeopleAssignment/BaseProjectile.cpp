@@ -14,25 +14,32 @@ ABaseProjectile::ABaseProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	CollisionComponent->InitSphereRadius(50.0f);
+	CollisionComponent->InitSphereRadius(60.0f);
 	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
+	
+	CollisionComponent->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
+	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	
+	CollisionComponent->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnHit);
 	RootComponent = CollisionComponent;
 	
 	// 메쉬&머터리얼 설정
-	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> mesh(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
-	SphereMesh->SetStaticMesh(mesh.Object);
-	
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> mat(TEXT("Material'/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial'"));
-	SphereMesh->SetMaterial(0, mat.Object);
+	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMeshComp"));
 	SphereMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-	SphereMesh->BoundsScale = 1.f;
+	ConstructorHelpers::FObjectFinder<UStaticMesh> mesh(TEXT("StaticMesh'/Game/Meshes/Sphere.Sphere'"));
+	SphereMesh->SetStaticMesh(mesh.Object);
+	ConstructorHelpers::FObjectFinder<UMaterialInterface> mat(TEXT("Material'/Game/Materials/BasicShapeMaterial.BasicShapeMaterial'"));
+	SphereMesh->SetMaterial(0, mat.Object);
+	SphereMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SphereMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
 	// 탄체 무브먼트 설정
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
-	ProjectileMovementComponent->InitialSpeed = 100.0f;
+	ProjectileMovementComponent->InitialSpeed = Velocity;
 	ProjectileMovementComponent->Velocity = FVector::ZeroVector;
 
 	// 화살표 설정
@@ -51,12 +58,12 @@ void ABaseProjectile::BeginPlay()
 	Super::BeginPlay();
 	
 }
-void ABaseProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+
+void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
+	if (HitComp)
 	{
-		SetActorHiddenInGame(true);
-		Destroy();
+		
 	}
 }
 void ABaseProjectile::SetVelocity(FVector& InDir)
@@ -70,6 +77,5 @@ void ABaseProjectile::SetVelocity(FVector& InDir)
 void ABaseProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
