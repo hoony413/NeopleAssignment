@@ -14,7 +14,7 @@ ASplitProjectile::ASplitProjectile()
 }
 void ASplitProjectile::AddSplitArrowComponent()
 {
-	// 화살표 설정
+	// 왼쪽 화살표 설정
 	LeftArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("LeftArrowComponent"));
 	LeftArrowComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	LeftArrowComponent->bUseInEditorScaling = false;
@@ -22,7 +22,7 @@ void ASplitProjectile::AddSplitArrowComponent()
 	LeftArrowComponent->SetHiddenInGame(false);
 	LeftArrowComponent->SetRelativeLocation(FVector::ZeroVector);
 
-	// 화살표 설정
+	// 오른쪽 화살표 설정
 	RightArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("RightArrowComponent"));
 	RightArrowComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	RightArrowComponent->bUseInEditorScaling = false;
